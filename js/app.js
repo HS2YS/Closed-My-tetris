@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTetromino;
     let currentRotation = 0;
     let currentPosition = 4;
+    let score = 0;
 
     function getRandomTetromino() {
         const randomIndex = Math.floor(Math.random() * tetrominoes.length);
@@ -50,8 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let tetromino = getRandomTetromino();
     currentTetromino = tetromino.shape[currentRotation];
     let currentColor = tetromino.color;
-
-    let iShape = [currentPosition, currentPosition + 10, currentPosition + 20, currentPosition + 30];
 
     for (let i = 0; i < 200; i++) {
         const block = document.createElement('div');
@@ -68,8 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     function undraw() {
         currentTetromino.forEach(index => {
-            blocks[currentPosition + index].classList.remove('tetromino');
-            blocks[currentPosition + index].style.backgroundColor = '';
+            const block = blocks[currentPosition + index];
+            if (!block.classList.contains('taken')) {
+                block.classList.remove('tetromino');
+                block.style.backgroundColor = '';
+            }
+            // blocks[currentPosition + index].classList.remove('tetromino');
+            // blocks[currentPosition + index].style.backgroundColor = '';
         });
     };
     draw();
@@ -79,24 +83,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function moveDown() {
         undraw();
-        if (!currentTetromino.some(index => blocks[currentPosition + index +10].classList.contains('taken') || (currentPosition + index + 10) >= 200)) {
+        if (!currentTetromino.some(index => (currentPosition + index + 10) >= 200 || blocks[currentPosition + index + 10].classList.contains('taken'))) {
             currentPosition += 10;
+            draw();
         } else {
             currentTetromino.forEach(index => {
                 blocks[currentPosition + index].classList.add('taken');
                 blocks[currentPosition + index].style.backgroundColor = currentColor;
             });
-
+            
+            checkForCompletedLine();
             startNewTetromino();
         }
-        draw();
     };
 
     function startNewTetromino() {
-        currentRosition = 0;
+        currentRotation = 0;
         currentPosition = 4;
         tetromino = getRandomTetromino();
         currentTetromino = tetromino.shape[currentRotation];
         currentColor = tetromino.color;
+
+        if (currentTetromino.some(index => blocks[currentPosition + index].classList.contains('taken'))) {
+            alert('Игра окончена : (');
+            clearInterval(timerId);
+        } else {
+            draw();
+        }
     };
+    function checkForCompletedLine() {
+        for (let i = 0; i <199; i += 10) {
+            const row = [];
+            for (let j=0;j<10;j++) {
+                row.push(i + j);
+            }
+
+            if (row.every(index => blocks[index].classList.contains('taken'))) {
+                score += 10;
+                document.getElementById('score').innerText = score;
+
+                row.forEach(index => {
+                    blocks[index].classList.remove('taken');
+                    blocks[index].classList.remove('tetromino');
+                    block[index].style.backgroundColor = '';
+                });
+                const removedBlocks = blocks.splice(i,10);
+                blocks = removedBlocks.concat(blocks);
+                blocks.forEach(cell => gameGrid.appendChild(cell));
+            }
+        }
+    }    
 });
