@@ -6,6 +6,7 @@
   height: 100vh;
   margin: 0;
   background-color: #000;
+  overflow: hidden;
 }
 
 h1 {
@@ -14,6 +15,9 @@ h1 {
 
 .game-container {
   position: relative;
+  width: 310px;
+  height: 603px;
+  margin: auto;
 }
 
 .game-grid {
