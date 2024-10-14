@@ -10,6 +10,7 @@ body {
     height: 100vh;
     margin: 0;
     background-color: #000;
+    overflow: hidden;
 }
 
 h1 {
@@ -17,6 +18,9 @@ h1 {
 }
 .game-container {
     position: relative;
+    width: 310px;
+    height: 603px;
+    margin: auto;
 }
 .game-grid {
     display: grid;
@@ -30,10 +34,8 @@ h1 {
         height: 30px;
         background-color: #555;
     }
-<<<<<<< Updated upstream:sass/style.scss
-=======
     .tetromino {
-    
+        background-color: red;
     }
->>>>>>> Stashed changes:css/style.scss
 }
+
