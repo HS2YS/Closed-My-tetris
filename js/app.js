@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Создание поля игры
     const gameGrid = document.querySelector('.game-grid');
+    // Старт/пауза
+    const startPauseButton = document.getElementById('start-pause-button')
+    // Фигуры:
     const tetrominoes = [
         // iShape
         {
@@ -42,11 +46,68 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRotation = 0;
     let currentPosition = 4;
     let score = 0;
+    let isPaused = false;
+
+    document.addEventListener('keydown', control);
+    
+    function control(e) {
+        if (e.keyCode === 37) {
+            moveLeft();
+        } else if (e.keyCode === 38) {
+            rotate();
+        } else if (e.keyCode === 39) {
+            moveRight();
+        } else if (e.keyCode === 40) {
+            moveDown();
+        }
+    };
+
+
+    function moveLeft() {
+        undraw();
+        const isAtLeftEdge = currentTetromino.some(index => (currentPosition + index) % 10 === 0);
+        if (!isAtLeftEdge) currentPosition -=1;
+        if (currentTetromino.some(index => blocks[currentPosition + index].classList.contains('taken'))) {
+            currentPosition +=1;
+        }
+        draw();
+    };
+    function moveRight() {
+        undraw();
+        const isAtRightEdge = currentTetromino.some(index => (currentPosition + index) % 10 === 9);
+        if (!isAtRightEdge) currentPosition +=1;
+        if (currentTetromino.some(index => blocks[currentPosition + index].classList.contains('taken'))) {
+            currentPosition -= 1;
+        }
+        draw()
+    };
+    function rotate() {
+        undraw();
+        currentRotation++;
+        if (currentRotation === tetromino.shape.length) {
+            currentRotation = 0;
+        }
+        currentTetromino = tetromino.shape[currentRotation];
+        adjustPositionAfterRotation();
+        draw();
+    }
+    function adjustPositionAfterRotation() {
+        const rightEdge = currentTetromino.some(index => (currentPosition + index) % 10 > 9);
+        const leftEdge = currentTetromino.some(index => (currentPosition + index) % 10 < 0);
+
+        if (rightEdge) {
+            currentPosition -= 1;
+            adjustPositionAfterRotation();
+        } else if (leftEdge) {
+            currentPosition += 1;
+            adjustPositionAfterRotation();
+        }
+    };
 
     function getRandomTetromino() {
         const randomIndex = Math.floor(Math.random() * tetrominoes.length);
         return tetrominoes[randomIndex];
-    }
+    };
 
     let tetromino = getRandomTetromino();
     currentTetromino = tetromino.shape[currentRotation];
@@ -55,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < 200; i++) {
         const block = document.createElement('div');
         gameGrid.appendChild(block);
-    }
+    };
 
     const blocks = Array.from(document.querySelectorAll('.game-grid div'));
 
@@ -91,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 blocks[currentPosition + index].classList.add('taken');
                 blocks[currentPosition + index].style.backgroundColor = currentColor;
             });
-            
             checkForCompletedLine();
             startNewTetromino();
         }
@@ -103,14 +163,16 @@ document.addEventListener('DOMContentLoaded', () => {
         tetromino = getRandomTetromino();
         currentTetromino = tetromino.shape[currentRotation];
         currentColor = tetromino.color;
-
         if (currentTetromino.some(index => blocks[currentPosition + index].classList.contains('taken'))) {
-            alert('Игра окончена : (');
+            alert('Игра окончена : )');
             clearInterval(timerId);
+            document.removeEventListener('keydown', control);
         } else {
             draw();
         }
-    };
+    }
+    
+
     function checkForCompletedLine() {
         for (let i = 0; i <199; i += 10) {
             const row = [];
@@ -132,5 +194,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 blocks.forEach(cell => gameGrid.appendChild(cell));
             }
         }
-    }    
+    };
+
+       startPauseButton.addEventListener('click', () => {
+        if (isPaused) {
+            timerId = setInterval(moveDown, 500);
+            document.addEventListener('keydown', control);
+            startPauseButton.innerText = 'Пауза';
+            isPaused = false;
+        } else {
+            clearInterval(timerId);
+            document.removeEventListener('keydown', control);
+            startPauseButton.innerText = 'Старт';
+            isPaused = true;
+        }
+    });
+      
+
+
 });
