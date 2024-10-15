@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
+
     function moveLeft() {
         undraw();
         const isAtLeftEdge = currentTetromino.some(index => (currentPosition + index) % 10 === 0);
@@ -167,11 +168,54 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Игра окончена : )');
             clearInterval(timerId);
             document.removeEventListener('keydown', control);
+            startPauseButton.innerText = 'Начать новую игру';
+            isPaused = true;
         } else {
             draw();
         }
     }
     
+    startPauseButton.addEventListener('click', () => {
+        if (startPauseButton.innerText === 'Начать новую игру') {
+            resetGame();
+        } else if (isPaused) {
+            timerId = setInterval(moveDown, 1000);
+            document.addEventListener('keydown', control);
+            startPauseButton.innerText = 'Пауза';
+            isPaused = false;
+        } else {
+            clearInterval(timerId);
+            document.removeEventListener('keydown', control);
+            startPauseButton.innerText = 'Старт';
+            isPaused = true;
+        }
+    });
+    
+
+
+    function resetGame() {
+        blocks.forEach(block => {
+            block.classList('tetromino');
+            block.classList('taken');
+            block.style.backgroundColor = '';
+        })
+
+        currentPosition = 4;
+        currentRotation = 0;
+        score = 0;
+        document.getElementById('score').innerText = score;
+
+        startPauseButton.innerText = 'Пауза';
+        isPaused = false;
+
+        tetromino = getRandomTetromino();
+        currentTetromino = tetromino.shape[currentRotation];
+        
+        draw();
+        timerId = setInterval(moveDown, 1000);
+        document.addEventListener('keydown', control);
+    }
+
 
     function checkForCompletedLine() {
         for (let i = 0; i <199; i += 10) {
@@ -196,19 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-       startPauseButton.addEventListener('click', () => {
-        if (isPaused) {
-            timerId = setInterval(moveDown, 1000);
-            document.addEventListener('keydown', control);
-            startPauseButton.innerText = 'Пауза';
-            isPaused = false;
-        } else {
-            clearInterval(timerId);
-            document.removeEventListener('keydown', control);
-            startPauseButton.innerText = 'Старт';
-            isPaused = true;
-        }
-    });
       
 
 
