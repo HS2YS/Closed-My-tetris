@@ -17,8 +17,10 @@ h1 {
 }
 .game-container {
     position: relative;
-    width: 310px;
-    height: 603px;
+    display: flex;
+    gap: 50px;
+    // width: 100vh;
+    // height: 603px;
     margin: auto;
 }
 .game-grid {
@@ -34,18 +36,14 @@ h1 {
         background-color: #555;
     }
 }
-.score-display {
+.display {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     color: #000;
     font-size: 20px;
-    position: absolute;
-    top: 0;
-    right: -100px;
-    margin: 10px;
+    display: flex;
+    flex-direction: column;
 
     #start-pause-button {
-        position: absolute;
-        top: 75px;
         padding: 10px 20px;
         font-size: 16px;
     }

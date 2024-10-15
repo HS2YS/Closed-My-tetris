@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Создание поля игры
     const gameGrid = document.querySelector('.game-grid');
     // Старт/пауза
-    const startPauseButton = document.getElementById('start-pause-button')
+    const startPauseButton = document.getElementById('start-pause-button');
     // Фигуры:
     const tetrominoes = [
         // iShape
@@ -47,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPosition = 4;
     let score = 0;
     let isPaused = false;
+    let level = 1;
+    let lineCleared = 0;
 
     document.addEventListener('keydown', control);
     
@@ -84,14 +86,33 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     function rotate() {
         undraw();
+        const previousRotation = currentRotation;
         currentRotation++;
         if (currentRotation === tetromino.shape.length) {
             currentRotation = 0;
         }
         currentTetromino = tetromino.shape[currentRotation];
-        adjustPositionAfterRotation();
+        if (checkRotationValidity()) {
+            draw();
+        } else {
+            currentRotation = previousRotation;
+            currentTetromino = tetromino.shape[currentRotation];
+            draw();
+        }
         draw();
-    }
+    };
+    function checkRotationValidity() {
+        return currentTetromino.every(index => {
+            const newPosition  = currentPosition + index;
+            return newPosition >=0 &&
+            newPosition < 200 &&
+            !blocks[newPosition].classList.contains('taken') &&
+            (newPosition % 10) >= 0 &&
+            (newPosition % 10) <=10;
+        });
+    };
+
+
     function adjustPositionAfterRotation() {
         const rightEdge = currentTetromino.some(index => (currentPosition + index) % 10 > 9);
         const leftEdge = currentTetromino.some(index => (currentPosition + index) % 10 < 0);
@@ -212,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentTetromino = tetromino.shape[currentRotation];
         
         draw();
-        timerId = setInterval(moveDown, 1000);
+        timerId = setInterval(moveDown, 250);
         document.addEventListener('keydown', control);
     }
 
@@ -236,11 +257,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const removedBlocks = blocks.splice(i,10);
                 blocks = removedBlocks.concat(blocks);
                 blocks.forEach(cell => gameGrid.appendChild(cell));
+
+                if (lineCleared % 10 === 0) {
+                    level += 1;
+                    document.getElementById('level').innerText = level;
+
+                    clearInterval(timerId);
+                    timerId = setInterval(moveDown, 1000 - (level*50));
+                }
             }
         }
     };
 
-      
 
 
 });
