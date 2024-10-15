@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // tShape
         {
             shape: [[1,10,11,12],[1,11,12,21],[10,11,12,21],[1,10,11,21]],
-            color: 'purple'
+            color: 'pink'
         },
         // sShape
         {
