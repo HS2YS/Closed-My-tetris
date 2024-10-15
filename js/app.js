@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     draw();
 
 
-    let timerId = setInterval(moveDown, 250);
+    let timerId = setInterval(moveDown, 1000);
 
     function moveDown() {
         undraw();
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
        startPauseButton.addEventListener('click', () => {
         if (isPaused) {
-            timerId = setInterval(moveDown, 500);
+            timerId = setInterval(moveDown, 1000);
             document.addEventListener('keydown', control);
             startPauseButton.innerText = 'Пауза';
             isPaused = false;
