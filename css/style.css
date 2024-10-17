@@ -39,8 +39,35 @@ h1 {
   font-size: 20px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 .display #start-pause-button {
   padding: 10px 20px;
   font-size: 16px;
+}
+.display #hold-button {
+  font-size: 16px;
+  padding: 10px 20px;
+}
+.display #work {
+  font-size: 16px;
+  padding: 10px 20px;
+}
+.display .next-tetromino {
+  display: grid;
+  grid-template-columns: repeat(7, 30px);
+  grid-template-rows: repeat(7, 30px);
+  background-color: #212121;
+  gap: 1px;
+}
+.display .next-tetromino .mini-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 30px);
+  grid-template-rows: repeat(7, 30px);
+  grid-gap: 1px;
+}
+.display .next-tetromino .mini-grid div {
+  width: 30px;
+  height: 30px;
+  background-color: #333;
 }/*# sourceMappingURL=style.css.map */

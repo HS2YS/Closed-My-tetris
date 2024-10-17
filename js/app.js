@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // Элементы DOM
-    const gameGrid = document.querySelector('.game-grid');
     const startPauseButton = document.getElementById('start-pause-button');
     const scoreDisplay = document.getElementById('score');
     const levelDisplay = document.getElementById('level');
@@ -10,14 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridWidth = 10;
     const gridHeight = 20;
     const gridSize = gridWidth * gridHeight;
+    const gameGrid = document.querySelector('.game-grid');
+    const miniGrid = document.querySelector('.mini-grid');
+    const miniGridBlocks = [];
+    const miniGridWidth = 7;
+    const miniGridHeight = 7;
+    const miniGridSize = miniGridWidth * miniGridHeight;
 
-    // Создание игрового поля
-    for (let i = 0; i < gridSize; i++) {
-        const block = document.createElement('div');
-        gameGrid.appendChild(block);
-    }
-
-    const blocks = Array.from(document.querySelectorAll('.game-grid div'));
 
     // Фигуры
     const tetrominoes = [
@@ -87,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             color: '#FF393D',
         },
     ];
-
+    
     // Игровые переменные
     let currentTetromino;
     let currentRotation = 0;
@@ -97,13 +95,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let level = 1;
     let linesCleared = 0;
+    let nextTetromino = tetrominoes[Math.floor(Math.random() * tetrominoes.length)];
+
+    // Создание игрового поля
+
+    for (let i = 0; i < gridSize; i++) {
+        const block = document.createElement('div');
+        gameGrid.appendChild(block);
+    }
+
+    // Создание мини сетки
+
+    for (let i = 0; i < miniGridSize; i++) {
+        const block = document.createElement('div');
+        miniGrid.appendChild(block);
+        miniGridBlocks.push(block);
+    }
+
+    const blocks = Array.from(document.querySelectorAll('.game-grid div'));
+
 
     // Функция для создания новой фигуры
     function createNewTetromino() {
-        const randomIndex = Math.floor(Math.random() * tetrominoes.length);
-        currentTetromino = tetrominoes[randomIndex];
+        currentTetromino = nextTetromino;
         currentRotation = 0;
         currentPosition = { x: 4, y: 0 };
+        nextTetromino = tetrominoes[Math.floor(Math.random() * tetrominoes.length)];
+        displayNextTetromino();
         if (!isValidMove(0, 0, currentTetromino.rotations[currentRotation])) {
             alert('Игра окончена :(');
             clearInterval(timerId);
@@ -114,6 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
             draw();
         }
     }
+
+    displayNextTetromino();
 
     // Управление с клавиатуры
     function control(e) {
@@ -167,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Функция фиксации фигуры на поле
     function freeze() {
         currentTetromino.rotations[currentRotation].forEach(block => {
             const x = currentPosition.x + block[0];
@@ -300,12 +319,49 @@ document.addEventListener('DOMContentLoaded', () => {
                     level += 1;
                     levelDisplay.innerText = level;
                     clearInterval(timerId);
-                    timerId = setInterval(moveDown, 1000 - (level - 1) * 100);
+                    timerId = setInterval(moveDown, 1000 - (level - 1) * 50);
                 }
 
-                // Проверяем ту же строку снова после опускания блоков
                 y--;
             }
         }
     }
+
+    function displayNextTetromino() {
+        miniGridBlocks.forEach(block =>  {
+            block.classList.remove('tetromino')
+            block.style.backgroundColor = '';
+        });
+
+        const rotation = nextTetromino.rotations[0];
+
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        rotation.forEach(block =>{
+            const x = block[0];
+            const y = block[1];
+
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+        });
+
+        const tetrominoWidth = maxX - minX + 1;
+        const tetrominoHeith = maxY - minY + 1;
+
+
+        const offsetX = Math.floor((miniGridWidth - tetrominoWidth) / 2) - minX;
+        const offsetY = Math.floor((miniGridWidth - tetrominoHeith) / 2) - minY;
+
+        rotation.forEach(block => {
+            const x = block[0] + offsetX;
+            const y = block[1] + offsetY;
+            const index = y * miniGridWidth + x;
+            if (miniGridBlocks[index]) {
+                miniGridBlocks[index].classList.add('tetromino');
+                miniGridBlocks[index].style.backgroundColor = nextTetromino.color;
+            }
+        });
+    }
+
 });
