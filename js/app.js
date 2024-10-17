@@ -1,192 +1,107 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Создание поля игры
+
+    // Элементы DOM
     const gameGrid = document.querySelector('.game-grid');
-    // Старт/пауза
     const startPauseButton = document.getElementById('start-pause-button');
-    // Фигуры:
-    const tetrominoes = [
-        // iShape
-        {
-            shape: [[1,11,21,31], [10,11,12,13]],
-            color: 'red'
-        },
-        // oShape
-        {
-            shape: [[0,1,10,11]],
-            color: 'yellow'
-        },
-        // tShape
-        {
-            shape: [[1,10,11,12],[1,11,12,21],[10,11,12,21],[1,10,11,21]],
-            color: 'pink'
-        },
-        // sShape
-        {
-            shape: [[1,2,10,11],[1,11,12,22]],
-            color: 'blue'
-        },
-        // zShape
-        {
-            shape: [[0,1,11,12],[2,11,12,21]],
-            color: 'cyan'
-        },
-        // jShape
-        {
-            shape: [[0,10,11,12],[1,2,11,21],[10,11,12,22],[1,11,20,21]],
-            color: 'green'
-        },
-        // lShape
-        {
-            shape: [[2,10,11,12],[1,11,21,22],[10,11,12,20],[0,1,11,21]],
-            color: 'orange'
-        }
-    ];
+    const scoreDisplay = document.getElementById('score');
+    const levelDisplay = document.getElementById('level');
 
-    let currentTetromino;
-    let currentRotation = 0;
-    let currentPosition = 4;
-    let score = 0;
-    let isPaused = false;
-    let level = 1;
-    let lineCleared = 0;
+    // Игровое поле
+    const gridWidth = 10;
+    const gridHeight = 20;
+    const gridSize = gridWidth * gridHeight;
 
-    document.addEventListener('keydown', control);
-    
-    function control(e) {
-        if (e.keyCode === 37) {
-            moveLeft();
-        } else if (e.keyCode === 38) {
-            rotate();
-        } else if (e.keyCode === 39) {
-            moveRight();
-        } else if (e.keyCode === 40) {
-            moveDown();
-        }
-    };
-
-
-
-    function moveLeft() {
-        undraw();
-        const isAtLeftEdge = currentTetromino.some(index => (currentPosition + index) % 10 === 0);
-        if (!isAtLeftEdge) currentPosition -=1;
-        if (currentTetromino.some(index => blocks[currentPosition + index].classList.contains('taken'))) {
-            currentPosition +=1;
-        }
-        draw();
-    };
-    function moveRight() {
-        undraw();
-        const isAtRightEdge = currentTetromino.some(index => (currentPosition + index) % 10 === 9);
-        if (!isAtRightEdge) currentPosition +=1;
-        if (currentTetromino.some(index => blocks[currentPosition + index].classList.contains('taken'))) {
-            currentPosition -= 1;
-        }
-        draw()
-    };
-    function rotate() {
-        undraw();
-        const previousRotation = currentRotation;
-        currentRotation++;
-        if (currentRotation === tetromino.shape.length) {
-            currentRotation = 0;
-        }
-        currentTetromino = tetromino.shape[currentRotation];
-        if (checkRotationValidity()) {
-            draw();
-        } else {
-            currentRotation = previousRotation;
-            currentTetromino = tetromino.shape[currentRotation];
-            draw();
-        }
-        draw();
-    };
-    function checkRotationValidity() {
-        return currentTetromino.every(index => {
-            const newPosition  = currentPosition + index;
-            return newPosition >=0 &&
-            newPosition < 200 &&
-            !blocks[newPosition].classList.contains('taken') &&
-            (newPosition % 10) >= 0 &&
-            (newPosition % 10) <=10;
-        });
-    };
-
-
-    function adjustPositionAfterRotation() {
-        const rightEdge = currentTetromino.some(index => (currentPosition + index) % 10 > 9);
-        const leftEdge = currentTetromino.some(index => (currentPosition + index) % 10 < 0);
-
-        if (rightEdge) {
-            currentPosition -= 1;
-            adjustPositionAfterRotation();
-        } else if (leftEdge) {
-            currentPosition += 1;
-            adjustPositionAfterRotation();
-        }
-    };
-
-    function getRandomTetromino() {
-        const randomIndex = Math.floor(Math.random() * tetrominoes.length);
-        return tetrominoes[randomIndex];
-    };
-
-    let tetromino = getRandomTetromino();
-    currentTetromino = tetromino.shape[currentRotation];
-    let currentColor = tetromino.color;
-
-    for (let i = 0; i < 200; i++) {
+    // Создание игрового поля
+    for (let i = 0; i < gridSize; i++) {
         const block = document.createElement('div');
         gameGrid.appendChild(block);
-    };
+    }
 
     const blocks = Array.from(document.querySelectorAll('.game-grid div'));
 
-    function draw() {
-        currentTetromino.forEach(index => {
-            blocks[currentPosition + index].classList.add('tetromino');
-            blocks[currentPosition + index].style.backgroundColor = currentColor;
-        });
-    };
-    function undraw() {
-        currentTetromino.forEach(index => {
-            const block = blocks[currentPosition + index];
-            if (!block.classList.contains('taken')) {
-                block.classList.remove('tetromino');
-                block.style.backgroundColor = '';
-            }
-            // blocks[currentPosition + index].classList.remove('tetromino');
-            // blocks[currentPosition + index].style.backgroundColor = '';
-        });
-    };
-    draw();
+    // Фигуры
+    const tetrominoes = [
+        // I
+        {
+            rotations: [
+                [[0, 1], [0, 2], [0, 3], [0, 0]],
+                [[-1, 0], [0, 0], [1, 0], [2, 0]],
+            ],
+            color: 'cyan',
+        },
+        // O
+        {
+            rotations: [
+                [[0, 0], [0, 1], [1, 0], [1, 1]],
+            ],
+            color: 'yellow',
+        },
+        // T
+        {
+            rotations: [
+                [[0, 0], [0, -1], [0, 1], [1, 0]],
+                [[0, 0], [-1, 0], [1, 0], [0, -1]],
+                [[0, 0], [0, -1], [0, 1], [-1, 0]],
+                [[0, 0], [-1, 0], [1, 0], [0, 1]],
+            ],
+            color: 'pink',
+        },
+        // S
+        {
+            rotations: [
+                [[0, 0], [0, 1], [1, -1], [1, 0]],
+                [[0, 0], [-1, 0], [0, -1], [1, -1]],
+            ],
+            color: 'green',
+        },
+        // Z
+        {
+            rotations: [
+                [[0, 0], [0, -1], [1, 0], [1, 1]],
+                [[0, 0], [-1, -1], [0, -1], [1, 0]],
+            ],
+            color: 'red',
+        },
+        // J
+        {
+            rotations: [
+                [[0, 0], [0, -1], [0, 1], [1, -1]],
+                [[0, 0], [-1, 0], [1, 0], [-1, -1]],
+                [[0, 0], [0, -1], [0, 1], [-1, 1]],
+                [[0, 0], [-1, 0], [1, 0], [1, 1]],
+            ],
+            color: 'blue',
+        },
+        // L
+        {
+            rotations: [
+                [[0, 0], [0, -1], [0, 1], [1, 1]],
+                [[0, 0], [-1, 0], [1, 0], [-1, 1]],
+                [[0, 0], [0, -1], [0, 1], [-1, -1]],
+                [[0, 0], [-1, 0], [1, 0], [1, -1]],
+            ],
+            color: 'orange',
+        },
+    ];
 
+    // Игровые переменные
+    let currentTetromino;
+    let currentRotation = 0;
+    let currentPosition = { x: 4, y: 0 };
+    let timerId;
+    let isPaused = false;
+    let score = 0;
+    let level = 1;
+    let linesCleared = 0;
 
-    let timerId = setInterval(moveDown, 1000);
-
-    function moveDown() {
-        undraw();
-        if (!currentTetromino.some(index => (currentPosition + index + 10) >= 200 || blocks[currentPosition + index + 10].classList.contains('taken'))) {
-            currentPosition += 10;
-            draw();
-        } else {
-            currentTetromino.forEach(index => {
-                blocks[currentPosition + index].classList.add('taken');
-                blocks[currentPosition + index].style.backgroundColor = currentColor;
-            });
-            checkForCompletedLine();
-            startNewTetromino();
-        }
-    };
-
-    function startNewTetromino() {
+    // Функция для создания новой фигуры
+    function createNewTetromino() {
+        const randomIndex = Math.floor(Math.random() * tetrominoes.length);
+        currentTetromino = tetrominoes[randomIndex];
         currentRotation = 0;
-        currentPosition = 4;
-        tetromino = getRandomTetromino();
-        currentTetromino = tetromino.shape[currentRotation];
-        currentColor = tetromino.color;
-        if (currentTetromino.some(index => blocks[currentPosition + index].classList.contains('taken'))) {
-            alert('Игра окончена : )');
+        currentPosition = { x: 4, y: 0 };
+        if (!isValidMove(0, 0, currentTetromino.rotations[currentRotation])) {
+            alert('Игра окончена :(');
             clearInterval(timerId);
             document.removeEventListener('keydown', control);
             startPauseButton.innerText = 'Начать новую игру';
@@ -195,12 +110,121 @@ document.addEventListener('DOMContentLoaded', () => {
             draw();
         }
     }
-    
+
+    // Управление с клавиатуры
+    function control(e) {
+        if (!isPaused) {
+            if (e.keyCode === 37) {
+                moveLeft();
+            } else if (e.keyCode === 38) {
+                rotate();
+            } else if (e.keyCode === 39) {
+                moveRight();
+            } else if (e.keyCode === 40) {
+                moveDown();
+            }
+        }
+    }
+    document.addEventListener('keydown', control);
+
+    // Функции движения
+    function moveLeft() {
+        if (isValidMove(-1, 0, currentTetromino.rotations[currentRotation])) {
+            undraw();
+            currentPosition.x -= 1;
+            draw();
+        }
+    }
+
+    function moveRight() {
+        if (isValidMove(1, 0, currentTetromino.rotations[currentRotation])) {
+            undraw();
+            currentPosition.x += 1;
+            draw();
+        }
+    }
+
+    function rotate() {
+        const nextRotation = (currentRotation + 1) % currentTetromino.rotations.length;
+        if (isValidMove(0, 0, currentTetromino.rotations[nextRotation])) {
+            undraw();
+            currentRotation = nextRotation;
+            draw();
+        }
+    }
+
+    function moveDown() {
+        if (isValidMove(0, 1, currentTetromino.rotations[currentRotation])) {
+            undraw();
+            currentPosition.y += 1;
+            draw();
+        } else {
+            freeze();
+        }
+    }
+
+    // Функция фиксации фигуры на поле
+    function freeze() {
+        currentTetromino.rotations[currentRotation].forEach(block => {
+            const x = currentPosition.x + block[0];
+            const y = currentPosition.y + block[1];
+            const index = y * gridWidth + x;
+            if (blocks[index]) {
+                blocks[index].classList.add('taken');
+                blocks[index].style.backgroundColor = currentTetromino.color;
+            }
+        });
+        checkForCompletedLines();
+        createNewTetromino();
+    }
+
+    // Функция рисования фигуры
+    function draw() {
+        currentTetromino.rotations[currentRotation].forEach(block => {
+            const x = currentPosition.x + block[0];
+            const y = currentPosition.y + block[1];
+            const index = y * gridWidth + x;
+            if (blocks[index]) {
+                blocks[index].classList.add('tetromino');
+                blocks[index].style.backgroundColor = currentTetromino.color;
+            }
+        });
+    }
+
+    // Функция удаления фигуры
+    function undraw() {
+        currentTetromino.rotations[currentRotation].forEach(block => {
+            const x = currentPosition.x + block[0];
+            const y = currentPosition.y + block[1];
+            const index = y * gridWidth + x;
+            if (blocks[index]) {
+                blocks[index].classList.remove('tetromino');
+                blocks[index].style.backgroundColor = '';
+            }
+        });
+    }
+
+    // Проверка валидности движения
+    function isValidMove(deltaX, deltaY, rotation) {
+        return rotation.every(block => {
+            const x = currentPosition.x + block[0] + deltaX;
+            const y = currentPosition.y + block[1] + deltaY;
+            const index = y * gridWidth + x;
+            return (
+                x >= 0 &&
+                x < gridWidth &&
+                y < gridHeight &&
+                (y < 0 || !blocks[index].classList.contains('taken'))
+            );
+        });
+    }
+
+    // Кнопка старт/пауза
     startPauseButton.addEventListener('click', () => {
         if (startPauseButton.innerText === 'Начать новую игру') {
             resetGame();
         } else if (isPaused) {
-            timerId = setInterval(moveDown, 1000);
+            timerId = setInterval(moveDown, 1000 - (level - 1) * 100);
             document.addEventListener('keydown', control);
             startPauseButton.innerText = 'Пауза';
             isPaused = false;
@@ -211,64 +235,73 @@ document.addEventListener('DOMContentLoaded', () => {
             isPaused = true;
         }
     });
-    
 
-
+    // Функция сброса игры
     function resetGame() {
         blocks.forEach(block => {
-            block.classList('tetromino');
-            block.classList('taken');
+            block.classList.remove('tetromino', 'taken');
             block.style.backgroundColor = '';
-        })
-
-        currentPosition = 4;
-        currentRotation = 0;
+        });
         score = 0;
-        document.getElementById('score').innerText = score;
-
-        startPauseButton.innerText = 'Пауза';
+        level = 1;
+        linesCleared = 0;
+        scoreDisplay.innerText = score;
+        levelDisplay.innerText = level;
         isPaused = false;
-
-        tetromino = getRandomTetromino();
-        currentTetromino = tetromino.shape[currentRotation];
-        
-        draw();
-        timerId = setInterval(moveDown, 250);
+        startPauseButton.innerText = 'Пауза';
         document.addEventListener('keydown', control);
+        createNewTetromino();
+        timerId = setInterval(moveDown, 1000);
     }
 
+    // Запуск игры
+    createNewTetromino();
+    timerId = setInterval(moveDown, 1000);
 
-    function checkForCompletedLine() {
-        for (let i = 0; i <199; i += 10) {
-            const row = [];
-            for (let j=0;j<10;j++) {
-                row.push(i + j);
-            }
-
-            if (row.every(index => blocks[index].classList.contains('taken'))) {
-                score += 10;
-                document.getElementById('score').innerText = score;
-
-                row.forEach(index => {
-                    blocks[index].classList.remove('taken');
-                    blocks[index].classList.remove('tetromino');
-                    block[index].style.backgroundColor = '';
-                });
-                const removedBlocks = blocks.splice(i,10);
-                blocks = removedBlocks.concat(blocks);
-                blocks.forEach(cell => gameGrid.appendChild(cell));
-
-                if (lineCleared % 10 === 0) {
-                    level += 1;
-                    document.getElementById('level').innerText = level;
-
-                    clearInterval(timerId);
-                    timerId = setInterval(moveDown, 1000 - (level*50));
+    // Проверка и удаление заполненных линий
+    function checkForCompletedLines() {
+        for (let y = 0; y < gridHeight; y++) {
+            let isComplete = true;
+            for (let x = 0; x < gridWidth; x++) {
+                const index = y * gridWidth + x;
+                if (!blocks[index].classList.contains('taken')) {
+                    isComplete = false;
+                    break;
                 }
             }
+            if (isComplete) {
+                score += 10;
+                linesCleared += 1;
+                scoreDisplay.innerText = score;
+
+                // Удаляем заполненную линию
+                for (let x = 0; x < gridWidth; x++) {
+                    const index = y * gridWidth + x;
+                    blocks[index].classList.remove('taken', 'tetromino');
+                    blocks[index].style.backgroundColor = '';
+                }
+
+                // Опускаем верхние блоки вниз
+                for (let i = y * gridWidth - 1; i >= 0; i--) {
+                    if (blocks[i].classList.contains('taken')) {
+                        blocks[i].classList.remove('taken', 'tetromino');
+                        blocks[i + gridWidth].classList.add('taken');
+                        blocks[i + gridWidth].style.backgroundColor = blocks[i].style.backgroundColor;
+                        blocks[i].style.backgroundColor = '';
+                    }
+                }
+
+                // Обновление уровня и скорости
+                if (linesCleared % 10 === 0) {
+                    level += 1;
+                    levelDisplay.innerText = level;
+                    clearInterval(timerId);
+                    timerId = setInterval(moveDown, 1000 - (level - 1) * 100);
+                }
+
+                // Проверяем ту же строку снова после опускания блоков
+                y--;
+            }
         }
-    };
-
-
-
+    }
 });
