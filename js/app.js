@@ -27,14 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 [[0, 1], [0, 2], [0, 3], [0, 0]],
                 [[-1, 0], [0, 0], [1, 0], [2, 0]],
             ],
-            color: 'cyan',
+            color: '#9EFC4E',
         },
         // O
         {
             rotations: [
                 [[0, 0], [0, 1], [1, 0], [1, 1]],
             ],
-            color: 'yellow',
+            color: '#75FBF2',
         },
         // T
         {
@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 [[0, 0], [0, -1], [0, 1], [-1, 0]],
                 [[0, 0], [-1, 0], [1, 0], [0, 1]],
             ],
-            color: 'pink',
+            color: '#6098FF',
         },
-        // S исправить
+        // S
         {
             rotations: [
                 [[0, 0], [-1, 0], [0, -1], [1, -1]],
@@ -54,9 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // [[0, 0], [0, 1], [1, -1], [1, 0]],
                 // [[0, 0], [-1, 0], [0, -1], [1, -1]],
             ],
-            color: 'green',
+            color: '#F64A89',
         },
-        // Z исправить
+        // Z
         {
             rotations: [
                 [[0, 0], [-1, -1], [0, -1], [1, 0]],
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // [[0, 0], [0, -1], [1, 0], [1, 1]],
                 // [[0, 0], [-1, -1], [0, -1], [1, 0]],
             ],
-            color: 'red',
+            color: '#BE4EFF',
         },
         // J
         {
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 [[0, 0], [0, -1], [0, 1], [-1, 1]],
                 [[0, 0], [-1, 0], [1, 0], [1, 1]],
             ],
-            color: 'blue',
+            color: '#FCF151',
         },
         // L
         {
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 [[0, 0], [0, -1], [0, 1], [-1, -1]],
                 [[0, 0], [-1, 0], [1, 0], [1, -1]],
             ],
-            color: 'orange',
+            color: '#FF393D',
         },
     ];
 
