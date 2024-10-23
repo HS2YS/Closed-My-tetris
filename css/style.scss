@@ -40,6 +40,12 @@ h1 {
     flex-direction: column;
     align-items: center;
 }
+.display-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    // justify-content: space-between;
+}
 .display-interface {
     display: flex;
     justify-content: space-around;
@@ -108,5 +114,35 @@ h1 {
                 background-color: #333;
             }
         }
-    } 
+    }
+    
+
+    .tutorial-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 18px;
+
+        h3 {
+            margin: 0px;
+        }
+
+        p {
+            margin: 0px;
+        }
+        
+
+        ul {
+            list-style-type: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+
+            li {
+                width: 100px;
+            }
+        }
+    }
 }

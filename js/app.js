@@ -302,6 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Проверка и удаление заполненных линий
     function checkForCompletedLines() {
+        let lines = 0;
         for (let y = 0; y < gridHeight; y++) {
             let isComplete = true;
             for (let x = 0; x < gridWidth; x++) {
@@ -312,18 +313,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             if (isComplete) {
-                score += 10;
-                linesCleared += 1;
-                scoreDisplay.innerText = score;
+                lines++;
 
-                // Удаляем заполненную линию
                 for (let x = 0; x < gridWidth; x++) {
                     const index = y * gridWidth + x;
                     blocks[index].classList.remove('taken', 'tetromino');
                     blocks[index].style.backgroundColor = '';
                 }
-
-                // Опускаем верхние блоки вниз
+    
                 for (let i = y * gridWidth - 1; i >= 0; i--) {
                     if (blocks[i].classList.contains('taken')) {
                         blocks[i].classList.remove('taken', 'tetromino');
@@ -332,19 +329,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         blocks[i].style.backgroundColor = '';
                     }
                 }
-
-                // Обновление уровня и скорости
-                if (linesCleared % 10 === 0) {
-                    level += 1;
-                    levelDisplay.innerText = level;
-                    clearInterval(timerId);
-                    timerId = setInterval(moveDown, 1000 - (level - 1) * 50);
-                }
-
+    
                 y--;
             }
         }
+    
+        if (lines > 0) {
+            const points = [0, 10, 20, 40, 80];
+            score += points[lines] * level;
+            linesCleared += lines;
+            scoreDisplay.innerText = score;
+    
+            if (linesCleared >= level * 10) {
+                level += 1;
+                levelDisplay.innerText = level;
+                clearInterval(timerId);
+                timerId = setInterval(moveDown, Math.max(100, 1000 - (level - 1) * 50));
+            }
+        }
     }
+    
 
     // Отображение следующей фигуры
 
@@ -424,7 +428,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-
     holdButton.addEventListener('click', () => {
         if (!canHold) return;
         undraw();
@@ -438,5 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         displayHoldTetromino();
         canHold = false;
-    });    
+    });
+
+
 });
