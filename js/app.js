@@ -154,8 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
     displayNextTetromino();
 
     // Управление с клавиатуры
+    
     function control(e) {
-        if (!isPaused) {
+        if (e.code === 'Space') {
+            startPauseGame();
+        } else if (!isPaused) {
             if (e.keyCode === 37) {
                 moveLeft();
             } else if (e.keyCode === 38) {
@@ -164,9 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 moveRight();
             } else if (e.keyCode === 40) {
                 moveDown();
+            } else if (e.keyCode === 96) {
+                holdTetrominoFunction();
             }
         }
     }
+    
     document.addEventListener('keydown', control);
 
     // Функции движения
@@ -260,23 +266,32 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         });
     }
+    // Интервал падения фигур
+    function getInterval() {
+        return Math.max(100, 1000 - (level - 1) * 50);
+    }
+    // Функция паузы
 
-    // Кнопка старт/пауза
-    startPauseButton.addEventListener('click', () => {
+    function startPauseGame() {
         if (startPauseButton.innerText === 'Начать новую игру') {
             resetGame();
         } else if (isPaused) {
-            timerId = setInterval(moveDown, 1000 - (level - 1) * 100);
-            document.addEventListener('keydown', control);
+            timerId = setInterval(moveDown, getInterval());
             startPauseButton.innerText = 'Пауза';
             isPaused = false;
         } else {
             clearInterval(timerId);
-            document.removeEventListener('keydown', control);
             startPauseButton.innerText = 'Старт';
             isPaused = true;
         }
-    });
+    }
+    
+      
+
+    // Кнопка старт/пауза
+
+    startPauseButton.addEventListener('click', startPauseGame);
+
 
     // Функция сброса игры
     function resetGame() {
@@ -293,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startPauseButton.innerText = 'Пауза';
         document.addEventListener('keydown', control);
         createNewTetromino();
-        timerId = setInterval(moveDown, 1000);
+        timerId = setInterval(moveDown, getInterval());
         holdTetromino = null;
         displayHoldTetromino();
         canHold = true;
@@ -347,10 +362,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 level += 1;
                 levelDisplay.innerText = level;
                 clearInterval(timerId);
-                timerId = setInterval(moveDown, Math.max(100, 1000 - (level - 1) * 50));
-            }
+                timerId = setInterval(moveDown, getInterval());
+            }         
         }
-        
+
         if (score > highScore) {
             highScore = score;
             localStorage.setItem('tetrisHighScore', highScore);
@@ -438,7 +453,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    holdButton.addEventListener('click', () => {
+    holdButton.addEventListener('click', holdTetrominoFunction);
+
+    function holdTetrominoFunction() {
         if (!canHold) return;
         undraw();
         if (holdTetromino) {
@@ -451,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         displayHoldTetromino();
         canHold = false;
-    });
-
-
+    }
+    
 });
