@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreDisplay = document.getElementById('score');
     const levelDisplay = document.getElementById('level');
 
-    // Игровое поле
+    // Константы
     const gridWidth = 10;
     const gridHeight = 20;
     const gridSize = gridWidth * gridHeight;
@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const holdGridWidth = 7;
     const holdGridHeight = 7;
     const holdGridSize = holdGridWidth * holdGridHeight;
+    const highScoreDisplay = document.getElementById('high-score');
 
 
     // Фигуры
@@ -92,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     ];
     
-    // Игровые переменные
+    // Переменные
     let currentTetromino;
     let currentRotation = 0;
     let currentPosition = { x: 4, y: 0 };
@@ -104,6 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let nextTetromino = tetrominoes[Math.floor(Math.random() * tetrominoes.length)];
     let holdTetromino = null;
     let canHold = true;
+    let highScore = localStorage.getItem('tetrisHighScore') || 0;
+    highScoreDisplay.innerText = highScore;
 
     // Создание игрового поля
 
@@ -347,6 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 timerId = setInterval(moveDown, Math.max(100, 1000 - (level - 1) * 50));
             }
         }
+        
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('tetrisHighScore', highScore);
+            highScoreDisplay.innerText = highScore;
+        }
+        
     }
     
 
