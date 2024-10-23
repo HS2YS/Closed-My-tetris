@@ -10,16 +10,33 @@
     <h1>Тетрис на JavaScript!</h1>
     <div class="game-container">
         <div class="game-grid"></div>
-        <div class="display">
-            <p>Ваш счет: <span id="score">0</span></p>
-            <button id="start-pause-button">Пауза</button>
-            <button id="work" disabled>В разработке</button>
-            <p>Текущий уровень: <span id="level">1</span></p>
-            <div class="display">
-                <h3>Следующая фигура:</h3>
-                <div class="next-tetromino">
-                    <div class="mini-grid"></div>
-                </div>                  
+            <div class="display-interface">
+                <div class="display-column">
+                    <div class="display-flex">
+                        <div class="display">
+                            <h3>Следующая фигура:</h3>
+                            <div class="next-tetromino">
+                                <div class="mini-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="display-flex">
+                        <div class="display">
+                            <h3>Удерживаемая фигура:</h3>
+                            <div class="hold-tetromino">
+                                <div class="hold-grid"></div>
+                            </div>
+                        </div>
+                    </div>                    
+                </div>
+                <div class="display-flex">
+                    <div class="display">
+                        <p>Ваш счет: <span id="score">0</span></p>
+                        <button id="start-pause-button">Пауза</button>
+                        <button id="hold-button">Удержать фигуру</button>
+                        <p>Текущий уровень: <span id="level">1</span></p>
+                    </div>
+                </div>
             </div>       
         </div>
     </div>

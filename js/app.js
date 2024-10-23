@@ -15,6 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const miniGridWidth = 7;
     const miniGridHeight = 7;
     const miniGridSize = miniGridWidth * miniGridHeight;
+    const holdButton = document.getElementById('hold-button');
+    const holdGrid = document.querySelector('.hold-grid');
+    const holdGridBlocks = [];
+    const holdGridWidth = 7;
+    const holdGridHeight = 7;
+    const holdGridSize = holdGridWidth * holdGridHeight;
 
 
     // Фигуры
@@ -96,6 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let level = 1;
     let linesCleared = 0;
     let nextTetromino = tetrominoes[Math.floor(Math.random() * tetrominoes.length)];
+    let holdTetromino = null;
+    let canHold = true;
 
     // Создание игрового поля
 
@@ -111,6 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
         miniGrid.appendChild(block);
         miniGridBlocks.push(block);
     }
+
+    for (let i = 0; i < holdGridSize; i++) {
+        const block = document.createElement('div');
+        holdGrid.appendChild(block);
+        holdGridBlocks.push(block);
+    }
+
 
     const blocks = Array.from(document.querySelectorAll('.game-grid div'));
 
@@ -199,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         checkForCompletedLines();
         createNewTetromino();
+        canHold = true;
     }
 
     // Функция рисования фигуры
@@ -275,6 +291,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', control);
         createNewTetromino();
         timerId = setInterval(moveDown, 1000);
+        holdTetromino = null;
+        displayHoldTetromino();
+        canHold = true;
     }
 
     // Запуск игры
@@ -327,6 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Отображение следующей фигуры
+
     function displayNextTetromino() {
         miniGridBlocks.forEach(block =>  {
             block.classList.remove('tetromino')
@@ -364,4 +385,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Отображение удержанной фигуры
+
+    function displayHoldTetromino() {
+        holdGridBlocks.forEach(block => {
+            block.classList.remove('tetromino');
+            block.style.backgroundColor = '';
+        });
+    
+        if (holdTetromino) {
+            const rotation = holdTetromino.rotations[0];
+    
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            rotation.forEach(block => {
+                const x = block[0];
+                const y = block[1];
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            });
+    
+            const tetrominoWidth = maxX - minX + 1;
+            const tetrominoHeight = maxY - minY + 1;
+    
+            const offsetX = Math.floor((holdGridWidth - tetrominoWidth) / 2) - minX;
+            const offsetY = Math.floor((holdGridHeight - tetrominoHeight) / 2) - minY;
+    
+            rotation.forEach(block => {
+                const x = block[0] + offsetX;
+                const y = block[1] + offsetY;
+                const index = y * holdGridWidth + x;
+                if (holdGridBlocks[index]) {
+                    holdGridBlocks[index].classList.add('tetromino');
+                    holdGridBlocks[index].style.backgroundColor = holdTetromino.color;
+                }
+            });
+        }
+    }
+    
+
+    holdButton.addEventListener('click', () => {
+        if (!canHold) return;
+        undraw();
+        if (holdTetromino) {
+            [currentTetromino, holdTetromino] = [holdTetromino, currentTetromino];
+            currentRotation = 0;
+            currentPosition = { x: 4, y: 0 };
+        } else {
+            holdTetromino = currentTetromino;
+            createNewTetromino();
+        }
+        displayHoldTetromino();
+        canHold = false;
+    });    
 });
